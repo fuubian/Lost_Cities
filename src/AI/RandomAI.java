@@ -8,7 +8,7 @@ import Game.TakeMove;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RandomAI {
+public class RandomAI extends ArtificialIntelligence {
 
     private int player;
     private int blockedColor;
@@ -27,7 +27,7 @@ public class RandomAI {
 
         // discard moves
         for(int i = 0; i < 8; i++) {
-            possibleMoves.add(new PlayMove(this.player, i+1, 2));
+            possibleMoves.add(new PlayMove(this.player, i+1, state.getPlayerCardsObject().get(i), 2));
         }
 
         // play on the field
@@ -36,7 +36,7 @@ public class RandomAI {
 
             if (state.getField().get(color).size() == 0 ||
                     state.getField().get(color).get(state.getField().get(color).size()-1).getValue() <= playerCards.get(i).getValue()) {
-                possibleMoves.add(new PlayMove(this.player, i+1, 1));
+                possibleMoves.add(new PlayMove(this.player, i+1, state.getPlayerCardsObject().get(i), 1));
             }
         }
 

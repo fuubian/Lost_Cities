@@ -1,17 +1,16 @@
 package Client;
 
+import AI.ArtificialIntelligence;
+import AI.InformationSet.InformationSetAI;
 import AI.RandomAI;
 import Game.Card;
 import Game.GameState;
 import Game.PlayMove;
 import Game.TakeMove;
 
-import javax.crypto.spec.PSource;
 import java.io.*;
 import java.net.Socket;
 import java.util.List;
-import java.util.Random;
-import java.util.Scanner;
 
 public class Client {
 
@@ -19,7 +18,7 @@ public class Client {
     public static int player;
 
     public static GameState state;
-    public static RandomAI AI;
+    public static ArtificialIntelligence AI;
 
     public static ObjectOutputStream out;
     public static ObjectInputStream in;
@@ -54,7 +53,8 @@ public class Client {
         in = new ObjectInputStream(socket.getInputStream());
 
         player = in.readInt();  // are we player 1 or player 2
-        AI = new RandomAI(player);
+        //AI = new RandomAI(player);
+        AI = new InformationSetAI(player);
 
         while (true) {  // Game Loop
             //Thread.sleep(1000);
@@ -95,8 +95,8 @@ public class Client {
         System.out.println("Game is over.");
 
         int[] points = state.calculatePoints();
-        System.out.println("Player 1: " + points[0] + " Points.");
-        System.out.println("Player 2: " + points[1] + " Points.");
+        System.out.println("You: " + points[0] + " Points.");
+        System.out.println("Opponent: " + points[1] + " Points.");
     }
 
     public static void printField(GameState state) {

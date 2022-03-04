@@ -33,6 +33,14 @@ public class Card implements Serializable {
         return -1;
     }
 
+    public boolean equals(Card other) {
+        if (this.color == other.getColor() && this.value == other.getValue()) {
+            return true;
+        }
+
+        return false;
+    }
+
     @Override
     public String toString() {
         return color+value;

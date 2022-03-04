@@ -1,6 +1,7 @@
 package Client;
 
-import AI.RandomAI;
+import AI.ArtificialIntelligence;
+import AI.InformationSet.InformationSetAI;
 import Game.Game;
 import Game.GameState;
 import Game.Card;
@@ -18,7 +19,7 @@ import java.util.Objects;
 public class Gui extends JFrame {
 
     private final Game game;
-    private final RandomAI AI;
+    private final ArtificialIntelligence AI;
     private String[] cards;
 
     private final int POS_Y = 537;
@@ -53,7 +54,7 @@ public class Gui extends JFrame {
      */
     public Gui() {
         this.game = new Game();
-        this.AI = new RandomAI(2);
+        this.AI = new InformationSetAI(2);
         this.cards = this.game.getGameState(1).getPlayerCards();
 
         setResizable(false);
@@ -352,7 +353,8 @@ public class Gui extends JFrame {
             || ((pile == 4 || pile == 9) && this.cards[this.selectedCard].matches("White[0-9]+"))
             || ((pile == 5 || pile == 10) && this.cards[this.selectedCard].matches("Yellow[0-9]+"))) {
                 int target = pile >= 6 ? 1 : 2;
-                if (this.game.executeMove(new PlayMove(1, this.selectedCard+1, target))) {
+                if (this.game.executeMove(new PlayMove(1, this.selectedCard+1,
+                        this.game.getGameState(1).getPlayerCardsObject().get(this.selectedCard), target))) {
                     updateField(this.game.getGameState(1));
                 } else {
                     JOptionPane.showMessageDialog(new JFrame(), "Illegal move.", "Error", JOptionPane.ERROR_MESSAGE);

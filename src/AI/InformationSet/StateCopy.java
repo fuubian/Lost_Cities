@@ -49,7 +49,6 @@ public class StateCopy {
 
     /**
      * Works like a copy constructor.
-     * @param state
      */
     public StateCopy(GameState state, int player) {
         this.unknownCards = 8;
@@ -65,9 +64,9 @@ public class StateCopy {
             this.field.add(tmp);
         }
         this.discardedCards = new ArrayList<>();
-        for (int i = 0; i < state.getField().size(); i++) {
+        for (int i = 0; i < 5; i++) {
             ArrayList<Card> tmp = new ArrayList<>();
-            tmp.addAll(state.getField().get(i));
+            tmp.addAll(state.getDiscardedCards().get(i));
             this.discardedCards.add(tmp);
         }
         this.cardsRemaining = state.getCardsRemaining();
@@ -76,6 +75,38 @@ public class StateCopy {
         // randomize unknown cards
         this.opponentsCards = new ArrayList<>();
         this.createRandomCards(state);
+    }
+
+    /**
+     * Executes a random move to the current state and returns it.
+     */
+    public MoveSet executeRandomMove() {
+        // randomize a move
+        List<MoveSet> possibleMoves = this.getPossibleMoves();
+        int random = (int) (Math.random() * possibleMoves.size());
+        MoveSet move = possibleMoves.get(random);
+
+        this.executeMove(move);
+
+        return move;
+    }
+
+    /**
+     * Applies a move to the current state.
+     */
+    public void executeMove(MoveSet move) {
+        if ((this.player == 1 && this.roundState == 0) ||
+                (this.player == 2 && this.roundState == 2)) {
+            this.applyMove(move, this.playerCards, 0);
+        } else {
+            this.applyMove(move, this.opponentsCards, 5);
+        }
+        this.roundState = this.roundState == 0 ? 2 : 0;
+
+        // check if game is over
+        if (this.cardsRemaining == 0) {
+            this.roundState = 4;
+        }
     }
 
     /**
@@ -93,6 +124,19 @@ public class StateCopy {
         }
 
         return possibleMoves;
+    }
+
+    public boolean simulateGame() {
+        while (this.roundState != 4) {
+            this.executeRandomMove();
+        }
+
+        int[] finalPoints = this.calculatePoints();
+        if (finalPoints[0] > finalPoints[1]) {
+            return true;
+        }
+
+        return false;
     }
 
     public int[] calculatePoints() {
@@ -167,9 +211,8 @@ public class StateCopy {
                 if (c.getColorCode() == this.pile.get(i).getColorCode()) {
                     if (c.getValue() == this.pile.get(i).getValue()) {
                         this.pile.remove(i);
+                        break;
                     }
-                } else {
-                    i+=11;
                 }
             }
         }
@@ -178,14 +221,14 @@ public class StateCopy {
     private void addMoveSets(List<MoveSet> moveList, int currentPlayer, List<Card> currentPlayerCards, int offset) {
         for (int i = 0; i < 8; i++) {
             // all combinations of discarding moves + drawing moves
-            PlayMove discardMove = new PlayMove(currentPlayer, i+1, 2);
+            PlayMove discardMove = new PlayMove(currentPlayer, i+1, currentPlayerCards.get(i), 2);
             int cardColor = currentPlayerCards.get(i).getColorCode();
             this.addTakeMoves(moveList, discardMove, currentPlayer, cardColor);
 
             // all combination of expedition moves + drawing moves
             if (this.field.get(cardColor+offset).size() == 0 ||
                     this.field.get(cardColor+offset).get(this.field.get(cardColor+offset).size()-1).getValue() <= currentPlayerCards.get(i).getValue()) {
-                PlayMove expeditionMove = new PlayMove(currentPlayer, i+1, 1);
+                PlayMove expeditionMove = new PlayMove(currentPlayer, i+1, currentPlayerCards.get(i), 1);
                 this.addTakeMoves(moveList, expeditionMove, currentPlayer, -1);
             }
         }
@@ -199,5 +242,30 @@ public class StateCopy {
             }
         }
         moveList.add(new MoveSet(playMove, new TakeMove(currentPlayer, 5)));
+    }
+
+    private void applyMove(MoveSet move, List<Card> currentPlayerCards, int offset) {
+        // PlayMove Sequence
+        PlayMove playMove = move.getPlayMove();
+
+        if (playMove.getTarget() == 1) {
+            this.field.get(playMove.getCardObject().getColorCode()+offset).add(playMove.getCardObject());
+        } else {
+            this.discardedCards.get(playMove.getCardObject().getColorCode()).add(playMove.getCardObject());
+        }
+        currentPlayerCards.remove(playMove.getCard()-1);
+
+        // TakeMove Sequence
+        TakeMove takeMove = move.getTakeMove();
+
+        if (takeMove.getTarget() == 5) {
+            currentPlayerCards.add(this.pile.get(0));
+            this.pile.remove(0);
+            this.cardsRemaining--;
+        } else {
+            currentPlayerCards.add(this.discardedCards.get((takeMove.getTarget())).get(
+                    this.discardedCards.get((takeMove.getTarget())).size()-1));
+            this.discardedCards.get(takeMove.getTarget()).remove(this.discardedCards.get((takeMove.getTarget())).size()-1);
+        }
     }
 }

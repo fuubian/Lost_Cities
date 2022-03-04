@@ -4,13 +4,15 @@ import java.io.Serializable;
 
 public class PlayMove implements Serializable {
 
-    private int player; // 1 or 2
-    private int card;   // 1-8
-    private int target; // field = 1; discard = 2
+    private final int player; // 1 or 2
+    private final int card;   // 1-8
+    private final Card cardObject;
+    private final int target; // field = 1; discard = 2
 
-    public PlayMove(int player, int card, int target) {
+    public PlayMove(int player, int card, Card cardObject, int target) {
         this.player = player;
         this.card = card;
+        this.cardObject = cardObject;
         this.target = target;
     }
 
@@ -20,6 +22,10 @@ public class PlayMove implements Serializable {
 
     public int getCard() {
         return this.card;
+    }
+
+    public Card getCardObject() {
+        return this.cardObject;
     }
 
     public int getTarget() {

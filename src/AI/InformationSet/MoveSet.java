@@ -25,7 +25,7 @@ public class MoveSet {
 
     public boolean equals(MoveSet other) {
         if (this.playMove.getTarget() == other.getPlayMove().getTarget()
-        && this.playMove.getCard() == other.getPlayMove().getCard()
+        && this.playMove.getCardObject().equals(other.getPlayMove().getCardObject())
         && this.takeMove.getTarget() == this.takeMove.getTarget()) {
             return true;
         }
