@@ -1,4 +1,4 @@
-package AI.InformationSet;
+package AI.InformationSet2;
 
 import AI.ArtificialIntelligence;
 import Game.Card;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class InformationSetAI extends ArtificialIntelligence {
+public class InformationSetAI2 extends ArtificialIntelligence {
 
     private final int player;
     private MoveSet move;
@@ -22,7 +22,7 @@ public class InformationSetAI extends ArtificialIntelligence {
 
     private final long MAX_TIME = 10000;
 
-    public InformationSetAI(int player) {
+    public InformationSetAI2(int player) {
         this.player = player;
         this.knownOpponentCards = new ArrayList<>();
     }
@@ -75,7 +75,7 @@ public class InformationSetAI extends ArtificialIntelligence {
         long time = System.currentTimeMillis();
 
         while (System.currentTimeMillis() - time <= this.MAX_TIME) {
-        //for (int i = 0; i < 1000; i++) {
+            //for (int i = 0; i < 1000; i++) {
             // Determinization
             StateCopy copy = new StateCopy(state, this.player, this.knownOpponentCards);
             Node currentNode = root;

@@ -1,4 +1,4 @@
-package AI.InformationSet;
+package AI.InformationSet2;
 
 import Game.Card;
 import Game.GameState;
@@ -113,9 +113,21 @@ public class StateCopy {
         if (this.player == 1 && this.roundState == 0 || this.player == 2 && this.roundState == 2) {
             // Own Move
             this.addMoveSets(possibleMoves, this.player, this.playerCards, 0);
+            this.hardPlayOut(possibleMoves, this.playerCards, 0);
+            if (possibleMoves.size() == 0) {
+                // only bad moves are available
+                possibleMoves = new ArrayList<>();
+                this.addMoveSets(possibleMoves, this.player, this.playerCards, 0);
+            }
         } else if (this.player == 1 && this.roundState == 2 || this.player == 2 && this.roundState == 0) {
             // Opponent's move
             this.addMoveSets(possibleMoves, this.opponent, this.opponentsCards, 5);
+            this.hardPlayOut(possibleMoves, this.opponentsCards, 5);
+            if (possibleMoves.size() == 0) {
+                // only bad moves are available
+                possibleMoves = new ArrayList<>();
+                this.addMoveSets(possibleMoves, this.opponent, this.opponentsCards, 5);
+            }
         }
 
         return possibleMoves;
@@ -124,6 +136,21 @@ public class StateCopy {
     public boolean simulateGame() {
         while (this.roundState != 4) {
             this.executeRandomMove();
+
+            //List<MoveSet> possibleMoves = this.getPossibleMoves();
+            /*if (this.player == 1 && this.roundState == 0 || this.player == 2 && this.roundState == 2) {
+                this.hardPlayOut(possibleMoves, this.playerCards, 0);
+            } else {
+                this.hardPlayOut(possibleMoves, this.opponentsCards, 5);
+            }*/
+
+            /*if (possibleMoves.size() == 0) {
+                // only bad moves are available
+                possibleMoves = this.getPossibleMoves();
+            }*/
+
+            //int index = (int) (Math.random() * possibleMoves.size());
+            //this.executeMove(possibleMoves.get(index));
         }
 
         int[] finalPoints = this.calculatePoints();
@@ -132,6 +159,89 @@ public class StateCopy {
         }
 
         return false;
+    }
+
+    /**
+     * Executes the hardPlayOut Simulation for one of the two players.
+     */
+    private void hardPlayOut(List<MoveSet> possibleMoves, List<Card> currentPlayerCards, int offset) {
+        Main:
+        for (int i = 0; i < possibleMoves.size(); i++) {
+            // inspect PlayMove for mistakes
+            PlayMove playMove = possibleMoves.get(i).getPlayMove();
+            int colorPlayMove = playMove.getCardObject().getColorCode();
+            if (playMove.getTarget() == 2) {
+                // don't discard useful cards
+                if (this.field.get(colorPlayMove+offset).size() > 0 &&
+                        this.field.get(colorPlayMove+offset).get(this.field.get(colorPlayMove+offset).size()-1).getValue() <
+                        playMove.getCardObject().getValue()) {
+                    possibleMoves.remove(i);
+                    i--;
+                    continue;
+                }
+
+                // don't give good cards to the opponent
+                int opponentField = (colorPlayMove+5+offset) % 10;
+                if (this.field.get(opponentField).size() > 0 && this.field.get(opponentField).get(this.field.get(opponentField).size()-1).getValue() <
+                        playMove.getCardObject().getValue()) {
+                    possibleMoves.remove(i);
+                    i--;
+                    continue;
+                }
+            } else {
+                int sameColor = 0;
+                int colorValue = 0;
+                for (Card card : currentPlayerCards) {
+                    if (card.getColorCode() == colorPlayMove) {
+                        if (card.getValue() < playMove.getCardObject().getValue() &&
+                                card.getValue() != 0) {
+                            possibleMoves.remove(i);
+                            i--;
+                            continue Main;
+                        }
+
+                        sameColor++;
+                        colorValue += card.getValue();
+                    }
+                }
+
+                if (this.field.get(colorPlayMove+offset).size() == 0 && (sameColor <= 2 || colorValue <= 11)) {
+                    // don't open expedition if there is no hope for it to be successful
+                    possibleMoves.remove(i);
+                    i--;
+                    continue;
+                }
+            }
+
+            // inspect TakeMove for mistakes
+            TakeMove takeMove = possibleMoves.get(i).getTakeMove();
+            int colorTakeMove = takeMove.getTarget();
+            if (colorTakeMove != 5) {
+                int sameColor = 0;
+                for (Card card : currentPlayerCards) {
+                    if (card.getColorCode() == colorPlayMove) {
+                        sameColor++;
+                    }
+                }
+                if ((this.field.get(colorTakeMove+offset).size() == 0 && sameColor <= 1) || (this.field.get(colorTakeMove+offset).size() > 0 &&
+                        this.field.get(colorTakeMove+offset).get(this.field.get(colorTakeMove+offset).size()-1).getValue() >
+                this.discardedCards.get(colorTakeMove).get( this.discardedCards.get(colorTakeMove).size()-1).getValue())) {
+                    // don't draw unnecessary cards from discard piles (when you are not losing)
+                    if (this.cardsRemaining <= 10) {
+                        int points[] = this.calculatePoints();
+                        if ((offset == 0 && points[0] > points[1]) || (offset == 5 && points[0] < points[1])) {
+                            possibleMoves.remove(i);
+                            i--;
+                            continue;
+                        }
+                    } else {
+                        possibleMoves.remove(i);
+                        i--;
+                        continue;
+                    }
+                }
+            }
+        }
     }
 
     public int[] calculatePoints() {

@@ -1,5 +1,7 @@
 package Game;
 
+import AI.InformationSet.MoveSet;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -40,9 +42,10 @@ public class Server {
         while (game.getState() != 4) {
             //Thread.sleep(2000);
             sendStates();
+            PlayMove pMove1;
             while (true) {  // until valid move was received (play card)
-                PlayMove move = (PlayMove) in1.readObject();
-                if (game.executeMove(move)) {
+                pMove1 = (PlayMove) in1.readObject();
+                if (game.executeMove(pMove1)) {
                     out1.writeInt(1);   // success
                     out1.flush();
                     break;
@@ -53,9 +56,10 @@ public class Server {
             }
 
             sendStates();
+            TakeMove tMove1;
             while (true) {  // until valid move was received (take card)
-                TakeMove move = (TakeMove) in1.readObject();
-                if (game.executeMove(move)) {
+                tMove1 = (TakeMove) in1.readObject();
+                if (game.executeMove(tMove1)) {
                     out1.writeInt(1);   // success
                     out1.flush();
                     break;

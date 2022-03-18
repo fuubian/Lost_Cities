@@ -2,6 +2,7 @@ package Client;
 
 import AI.ArtificialIntelligence;
 import AI.InformationSet.InformationSetAI;
+import AI.InformationSet2.InformationSetAI2;
 import Game.Game;
 import Game.GameState;
 import Game.Card;
@@ -54,7 +55,7 @@ public class Gui extends JFrame {
      */
     public Gui() {
         this.game = new Game();
-        this.AI = new InformationSetAI(2);
+        this.AI = new InformationSetAI2(2);
         this.cards = this.game.getGameState(1).getPlayerCards();
 
         setResizable(false);
@@ -353,9 +354,10 @@ public class Gui extends JFrame {
             || ((pile == 4 || pile == 9) && this.cards[this.selectedCard].matches("White[0-9]+"))
             || ((pile == 5 || pile == 10) && this.cards[this.selectedCard].matches("Yellow[0-9]+"))) {
                 int target = pile >= 6 ? 1 : 2;
-                if (this.game.executeMove(new PlayMove(1, this.selectedCard+1,
-                        this.game.getGameState(1).getPlayerCardsObject().get(this.selectedCard), target))) {
+                PlayMove pMove = new PlayMove(1, this.selectedCard+1, this.game.getGameState(1).getPlayerCardsObject().get(this.selectedCard), target);
+                if (this.game.executeMove(pMove)) {
                     updateField(this.game.getGameState(1));
+                    this.AI.receiveOpponentPlayMove(pMove);
                 } else {
                     JOptionPane.showMessageDialog(new JFrame(), "Illegal move.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -373,9 +375,13 @@ public class Gui extends JFrame {
         if (pile == 0) {
             this.game.executeMove(new TakeMove(1, 5));
         } else {
+            Card card = this.game.getGameState(1).getDiscardedCards().get(pile-1).get(
+                    this.game.getGameState(1).getDiscardedCards().get(pile-1).size()-1);
             if (!this.game.executeMove(new TakeMove(1, pile-1))) {
                 JOptionPane.showMessageDialog(new JFrame(), "Illegal move.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
+            } else {
+                this.AI.receiveOpponentTakeMove(card);
             }
         }
         this.updateField(this.game.getGameState(1));

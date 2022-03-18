@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 public class TakeMove implements Serializable {
 
-    int player; // 1 or 2
-    int target; // 0-red; 1-green; ... 5 - stack
+    private int player; // 1 or 2
+    private int target; // 0-red; 1-green; ... 5 - stack
 
     public TakeMove(int player, int target) {
         this.player = player;

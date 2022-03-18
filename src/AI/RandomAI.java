@@ -70,4 +70,14 @@ public class RandomAI extends ArtificialIntelligence {
         this.blockedColor = -1;
         return new TakeMove(this.player, random);
     }
+
+    @Override
+    public void receiveOpponentPlayMove(PlayMove move) {
+
+    }
+
+    @Override
+    public void receiveOpponentTakeMove(Card card) {
+
+    }
 }

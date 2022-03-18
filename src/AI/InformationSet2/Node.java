@@ -1,4 +1,4 @@
-package AI.InformationSet;
+package AI.InformationSet2;
 
 import java.util.ArrayList;
 import java.util.List;

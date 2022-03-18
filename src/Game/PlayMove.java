@@ -33,7 +33,7 @@ public class PlayMove implements Serializable {
     }
 
     public String toString() {
-        String text = "Player " + player + " played a card to ";
+        String text = "Player " + player + " played " + this.cardObject.toString() + " to ";
 
         if (target == 1) text += "their expedition cards.";
         else text += "the discard pile";

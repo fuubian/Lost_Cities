@@ -1,7 +1,6 @@
 package Client;
 
 import AI.ArtificialIntelligence;
-import AI.InformationSet.InformationSetAI;
 import AI.RandomAI;
 import Game.Card;
 import Game.GameState;
@@ -53,8 +52,8 @@ public class Client {
         in = new ObjectInputStream(socket.getInputStream());
 
         player = in.readInt();  // are we player 1 or player 2
-        //AI = new RandomAI(player);
-        AI = new InformationSetAI(player);
+        AI = new RandomAI(player);
+        //AI = new InformationSetAI(player);
 
         while (true) {  // Game Loop
             //Thread.sleep(1000);
