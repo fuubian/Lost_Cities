@@ -1,5 +1,6 @@
 package AI.InformationSet;
 
+import Game.MoveSet;
 import Game.Card;
 import Game.GameState;
 import Game.PlayMove;
@@ -64,7 +65,7 @@ public class StateCopy {
             this.discardedCards.add(tmp);
         }
         this.cardsRemaining = state.getCardsRemaining();
-        this.roundState = state.getState();
+        this.roundState = state.getRoundState();
 
         // randomize unknown cards
         this.opponentsCards = new ArrayList<>();

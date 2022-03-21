@@ -1,9 +1,6 @@
 package AI;
 
-import Game.Card;
-import Game.GameState;
-import Game.PlayMove;
-import Game.TakeMove;
+import Game.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,64 +8,60 @@ import java.util.List;
 public class RandomAI extends ArtificialIntelligence {
 
     private int player;
-    private int blockedColor;
+    private MoveSet move;
 
     public RandomAI(int player) {
         this.player = player;
-        this.blockedColor = -1;
     }
 
     /**
      * Plays a card onto the discard pile or expedition pile.
      */
     public PlayMove playCard(GameState state) {
-        List<PlayMove> possibleMoves = new ArrayList<>();
-        List<Card> playerCards = state.getPlayerCardsObject();
+        List<MoveSet> possibleMoves = this.getPossibleMoves(state);
+        this.move = possibleMoves.get((int) (Math.random() * possibleMoves.size()));
 
-        // discard moves
-        for(int i = 0; i < 8; i++) {
-            possibleMoves.add(new PlayMove(this.player, i+1, state.getPlayerCardsObject().get(i), 2));
-        }
-
-        // play on the field
-        for (int i = 0; i < 8; i++) {
-            int color = playerCards.get(i).getColorCode();
-
-            if (state.getField().get(color).size() == 0 ||
-                    state.getField().get(color).get(state.getField().get(color).size()-1).getValue() <= playerCards.get(i).getValue()) {
-                possibleMoves.add(new PlayMove(this.player, i+1, state.getPlayerCardsObject().get(i), 1));
-            }
-        }
-
-        int random = (int) (Math.random() * possibleMoves.size());
-
-        /**
-         * block color to prevent to draw the played card from the discard pile
-         */
-        if (possibleMoves.get(random).getTarget() == 2) {
-            int card = possibleMoves.get(random).getCard() - 1;
-            this.blockedColor = playerCards.get(card).getColorCode();
-        }
-
-        return possibleMoves.get(random);
+        return this.move.getPlayMove();
     }
 
     /**
      * Draws a card from the discard pile or normal pile.
      */
     public TakeMove takeCard(GameState state) {
-        int random;
-        while (true) {
-            random = (int) (Math.random() * 6);
+        return this.move.getTakeMove();
+    }
 
-            if (random == 5 ||
-                    (random != this.blockedColor && state.getDiscardedCards().get(random).size() > 0)) {
-                break;
+    /**
+     * Calculates and returns all possible froms within the current state.
+     */
+    public List<MoveSet> getPossibleMoves(GameState state) {
+        List<MoveSet> possibleMoves = new ArrayList<>();
+        List<Card> playerCards = state.getPlayerCardsObject();
+        for (int i = 0; i < 8; i++) {
+            // all combinations of discarding moves + drawing moves
+            PlayMove discardMove = new PlayMove(this.player, i+1, playerCards.get(i), 2);
+            int cardColor = playerCards.get(i).getColorCode();
+            this.addTakeMoves(possibleMoves, discardMove, cardColor, state);
+
+            // all combination of expedition moves + drawing moves
+            if (state.getField().get(cardColor).size() == 0 ||
+                    state.getField().get(cardColor).get(state.getField().get(cardColor).size()-1).getValue() <= playerCards.get(i).getValue()) {
+                PlayMove expeditionMove = new PlayMove(this.player, i+1, playerCards.get(i), 1);
+                this.addTakeMoves(possibleMoves, expeditionMove, -1, state);
             }
         }
 
-        this.blockedColor = -1;
-        return new TakeMove(this.player, random);
+        return possibleMoves;
+    }
+
+    private void addTakeMoves(List<MoveSet> moveList, PlayMove playMove, int cardColor, GameState state) {
+        for (int j = 0; j < 5; j++) {
+            if (j != cardColor && state.getDiscardedCards().get(j).size() > 0) {
+                MoveSet moveSet = new MoveSet(playMove, new TakeMove(this.player, j));
+                moveList.add(moveSet);
+            }
+        }
+        moveList.add(new MoveSet(playMove, new TakeMove(this.player, 5)));
     }
 
     @Override

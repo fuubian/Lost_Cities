@@ -1,5 +1,7 @@
 package AI.InformationSet;
 
+import Game.MoveSet;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +44,25 @@ public class Node {
         this.children.add(child);
 
         return child;
+    }
+
+    public void fusionWithOther(Node other) {
+        List<Node> otherChildren = other.getChildren();
+        for (int i = 0; i < otherChildren.size(); i++) {
+            boolean found = false;
+            for (int j = 0; j < this.children.size(); j++) {
+                if (this.children.get(j).getMove().equals(otherChildren.get(i).getMove())) {
+                    found = true;
+                    this.children.get(j).updateVisit(otherChildren.get(i).getVisitCount());
+                    this.children.get(j).updateAvailability(otherChildren.get(i).getAvailabilityCount());
+                    this.children.get(j).updateWin(otherChildren.get(i).getWin());
+                    break;
+                }
+            }
+            if (!found) {
+                this.children.add(otherChildren.get(i));
+            }
+        }
     }
 
     /**
@@ -124,8 +145,28 @@ public class Node {
         this.winCount += reward;
     }
 
+    public void updateVisit(int visit) {
+        this.visitCount += visit;
+    }
+
+    public void updateWin(double win) {
+        this.winCount += win;
+    }
+
+    public void updateAvailability(int availability) {
+        this.availabilityCount += availability;
+    }
+
     public void increaseAvailability() {
         this.availabilityCount++;
+    }
+
+    public double getWin() {
+        return this.winCount;
+    }
+
+    public int getAvailabilityCount() {
+        return this.availabilityCount;
     }
 
     public int getVisitCount() {
@@ -138,5 +179,9 @@ public class Node {
 
     public Node getFather() {
         return this.father;
+    }
+
+    public List<Node> getChildren() {
+        return this.children;
     }
 }

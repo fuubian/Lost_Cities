@@ -1,5 +1,7 @@
 package AI.InformationSet2;
 
+import Game.MoveSet;
+
 import java.util.ArrayList;
 import java.util.List;
 

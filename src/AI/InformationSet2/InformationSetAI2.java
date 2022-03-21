@@ -1,13 +1,9 @@
 package AI.InformationSet2;
 
 import AI.ArtificialIntelligence;
-import Game.Card;
-import Game.GameState;
-import Game.PlayMove;
-import Game.TakeMove;
+import Game.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class InformationSetAI2 extends ArtificialIntelligence {

@@ -1,19 +1,21 @@
 package AI.InformationSet;
 
 import AI.ArtificialIntelligence;
+import Game.MoveSet;
 import Game.Card;
 import Game.GameState;
 import Game.PlayMove;
 import Game.TakeMove;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class InformationSetAI extends ArtificialIntelligence {
 
     private final int player;
     private MoveSet move;
+
+    private final int AMOUNT_THREADS = 3;
 
     /**
      * A list of all opponent's cards that are known.
@@ -70,62 +72,29 @@ public class InformationSetAI extends ArtificialIntelligence {
      * Creates a SO-ISMCTS and determines the best MoveSet.
      */
     private MoveSet createTree(GameState state) {
-        Node root = new Node();
+        List<MCTSAgent> agents = new ArrayList<>(AMOUNT_THREADS+1);
+        List<MCTSThread> threads = new ArrayList<>(AMOUNT_THREADS);
+
+        for (int i = 0; i < AMOUNT_THREADS; i++) {
+            agents.add(new MCTSAgent(state, this.player, this.knownOpponentCards));
+            threads.add(new MCTSThread(agents.get(i)));
+        }
+        agents.add(new MCTSAgent(state, this.player, this.knownOpponentCards));
 
         long time = System.currentTimeMillis();
-
+        for (int i = 0; i < AMOUNT_THREADS; i++) {
+            threads.get(i).start();
+        }
         while (System.currentTimeMillis() - time <= this.MAX_TIME) {
-        //for (int i = 0; i < 1000; i++) {
-            // Determinization
-            StateCopy copy = new StateCopy(state, this.player, this.knownOpponentCards);
-            Node currentNode = root;
-            boolean selectionCompleted = false;
-            MoveSet selectedMove = null;
+            agents.get(AMOUNT_THREADS).runThrough();
+        }
+        for (int i = 0; i < AMOUNT_THREADS; i++) {
+            threads.get(i).stopRun();
+        }
 
-            // Descending and Selection
-            while (true) {
-                List<MoveSet> possibleMoves = copy.getPossibleMoves();
-                if (possibleMoves.size() == 0) {
-                    // no node exists to that move OR it is a terminal node
-                    selectionCompleted = true;
-                } else {
-                    //Collections.shuffle(possibleMoves);
-                    MoveSet move = currentNode.searchUnexploredNode(possibleMoves);
-                    if (move == null) {
-                        // Look for move with best UCT and descend
-                        currentNode = currentNode.determineBestUCTChild(possibleMoves);
-                    } else {
-                        // Not listed move was found
-                        selectionCompleted = true;
-                        selectedMove = move;
-                    }
-                }
-
-                // Expansion
-                if (selectionCompleted) {
-                    if (selectedMove != null) {
-                        currentNode = currentNode.expand(selectedMove);
-                    } else if (copy.getRoundState() != 4) {
-                        // no node exists
-                        selectedMove = copy.executeRandomMove();
-                        currentNode = currentNode.expand(selectedMove);
-                    }
-                } else {
-                    copy.executeMove(currentNode.getMove());
-                    continue;
-                }
-
-                // Simulation
-                int reward = copy.simulateGame() ? 1 : 0;
-
-                // Backpropagation
-                while (currentNode.getFather() != null) {
-                    currentNode.update(reward);
-                    currentNode = currentNode.getFather();
-                }
-
-                break;
-            }
+        Node root = agents.get(0).getRoot();
+        for (int i = 1; i < AMOUNT_THREADS+1; i++) {
+            root.fusionWithOther(agents.get(i).getRoot());
         }
 
         return root.determineMoveSet();

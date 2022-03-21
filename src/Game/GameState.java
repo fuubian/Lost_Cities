@@ -28,14 +28,14 @@ public class GameState implements Serializable {
     private final List<List<Card>> discardedCards;
 
     private final int cardsRemaining;
-    private final int state;
+    private final int roundState;
 
-    public GameState(List<Card> playerCards, List<List<Card>> field, List<List<Card>> discardedCards, int cardsRemaining, int state) {
+    public GameState(List<Card> playerCards, List<List<Card>> field, List<List<Card>> discardedCards, int cardsRemaining, int roundState) {
         this.playerCards = playerCards;
         this.field = field;
         this.discardedCards = discardedCards;
         this.cardsRemaining = cardsRemaining;
-        this.state = state;
+        this.roundState = roundState;
     }
 
     public int[] calculatePoints() {
@@ -91,7 +91,7 @@ public class GameState implements Serializable {
         return this.cardsRemaining;
     }
 
-    public int getState() {
-        return this.state;
+    public int getRoundState() {
+        return this.roundState;
     }
 }

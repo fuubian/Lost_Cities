@@ -1,9 +1,4 @@
-package AI.InformationSet;
-
-import Game.PlayMove;
-import Game.TakeMove;
-
-import java.util.Objects;
+package Game;
 
 public class MoveSet {
 

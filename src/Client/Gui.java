@@ -1,7 +1,6 @@
 package Client;
 
 import AI.ArtificialIntelligence;
-import AI.InformationSet.InformationSetAI;
 import AI.InformationSet2.InformationSetAI2;
 import Game.Game;
 import Game.GameState;
@@ -394,20 +393,20 @@ public class Gui extends JFrame {
     private void updateField(GameState state) {
 
         // update State
-        if (state.getState() == 0) {
+        if (state.getRoundState() == 0) {
             lbTurn.setText("Your Turn:");
             lbInstruction.setText("Select card");
         }
-        else if (state.getState() == 1) {
+        else if (state.getRoundState() == 1) {
             this.playerCards.get(this.selectedCard).setBounds(this.playerCards.get(this.selectedCard).getBounds().x, POS_Y, WIDTH, HEIGHT);
             this.selectedCard = -1;
             lbInstruction.setText("Draw a card");
         }
-        else if (state.getState() == 2) {
+        else if (state.getRoundState() == 2) {
             lbTurn.setText("AI's Turn:");
             lbInstruction.setText("Please wait");
         }
-        else if (state.getState() == 4) {
+        else if (state.getRoundState() == 4) {
             lbTurn.setText("Game is over.");
             lbInstruction.setText("");
         }
@@ -458,7 +457,7 @@ public class Gui extends JFrame {
 
         SwingUtilities.invokeLater(()->repaint());
 
-        if (state.getState() == 4) {
+        if (state.getRoundState() == 4) {
             int points[] = state.calculatePoints();
 
             String message = "Results:\nYou: " + points[0] + "\nOpponent: " + points[1];

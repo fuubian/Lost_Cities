@@ -1,9 +1,6 @@
 package AI.InformationSet2;
 
-import Game.Card;
-import Game.GameState;
-import Game.PlayMove;
-import Game.TakeMove;
+import Game.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,7 +61,7 @@ public class StateCopy {
             this.discardedCards.add(tmp);
         }
         this.cardsRemaining = state.getCardsRemaining();
-        this.roundState = state.getState();
+        this.roundState = state.getRoundState();
 
         // randomize unknown cards
         this.opponentsCards = new ArrayList<>();
@@ -113,7 +110,7 @@ public class StateCopy {
         if (this.player == 1 && this.roundState == 0 || this.player == 2 && this.roundState == 2) {
             // Own Move
             this.addMoveSets(possibleMoves, this.player, this.playerCards, 0);
-            this.hardPlayOut(possibleMoves, this.playerCards, 0);
+            this.removeBadMoves(possibleMoves, this.playerCards, 0);
             if (possibleMoves.size() == 0) {
                 // only bad moves are available
                 possibleMoves = new ArrayList<>();
@@ -122,7 +119,7 @@ public class StateCopy {
         } else if (this.player == 1 && this.roundState == 2 || this.player == 2 && this.roundState == 0) {
             // Opponent's move
             this.addMoveSets(possibleMoves, this.opponent, this.opponentsCards, 5);
-            this.hardPlayOut(possibleMoves, this.opponentsCards, 5);
+            this.removeBadMoves(possibleMoves, this.opponentsCards, 5);
             if (possibleMoves.size() == 0) {
                 // only bad moves are available
                 possibleMoves = new ArrayList<>();
@@ -136,21 +133,6 @@ public class StateCopy {
     public boolean simulateGame() {
         while (this.roundState != 4) {
             this.executeRandomMove();
-
-            //List<MoveSet> possibleMoves = this.getPossibleMoves();
-            /*if (this.player == 1 && this.roundState == 0 || this.player == 2 && this.roundState == 2) {
-                this.hardPlayOut(possibleMoves, this.playerCards, 0);
-            } else {
-                this.hardPlayOut(possibleMoves, this.opponentsCards, 5);
-            }*/
-
-            /*if (possibleMoves.size() == 0) {
-                // only bad moves are available
-                possibleMoves = this.getPossibleMoves();
-            }*/
-
-            //int index = (int) (Math.random() * possibleMoves.size());
-            //this.executeMove(possibleMoves.get(index));
         }
 
         int[] finalPoints = this.calculatePoints();
@@ -162,9 +144,9 @@ public class StateCopy {
     }
 
     /**
-     * Executes the hardPlayOut Simulation for one of the two players.
+     * Deletes from a list of moves all obvious bad moves.
      */
-    private void hardPlayOut(List<MoveSet> possibleMoves, List<Card> currentPlayerCards, int offset) {
+    private void removeBadMoves(List<MoveSet> possibleMoves, List<Card> currentPlayerCards, int offset) {
         Main:
         for (int i = 0; i < possibleMoves.size(); i++) {
             // inspect PlayMove for mistakes
