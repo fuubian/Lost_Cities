@@ -1,4 +1,4 @@
-package AI.InformationSet2;
+package AI.MCTS.InformationSetHard2;
 
 import Game.*;
 
@@ -70,16 +70,35 @@ public class StateCopy {
     }
 
     /**
-     * Executes a random move to the current state and returns it.
+     * Executes the move with the best heuristic value to the current state and returns it.
      */
-    public MoveSet executeRandomMove() {
-        // randomize a move
+    public MoveSet executeHeuristicMove() {
         List<MoveSet> possibleMoves = this.getPossibleMoves();
-        int random = (int) (Math.random() * possibleMoves.size());
-        MoveSet move = possibleMoves.get(random);
+
+        MoveSet move = possibleMoves.get(0);
+        int bestHeuristic = this.calculateHeuristic(move);
+
+        if (move.getPlayMove().getPlayer() == this.player) {
+            for (int i = 1; i < possibleMoves.size(); i++) {
+                int tmpHeuristic = this.calculateHeuristic(possibleMoves.get(i));
+
+                if (tmpHeuristic > bestHeuristic) {
+                    move = possibleMoves.get(i);
+                    bestHeuristic = tmpHeuristic;
+                }
+            }
+        } else {
+            for (int i = 1; i < possibleMoves.size(); i++) {
+                int tmpHeuristic = this.calculateHeuristic(possibleMoves.get(i));
+
+                if (tmpHeuristic < bestHeuristic) {
+                    move = possibleMoves.get(i);
+                    bestHeuristic = tmpHeuristic;
+                }
+            }
+        }
 
         this.executeMove(move);
-
         return move;
     }
 
@@ -130,17 +149,19 @@ public class StateCopy {
         return possibleMoves;
     }
 
-    public boolean simulateGame() {
+    public double simulateGame() {
         while (this.roundState != 4) {
-            this.executeRandomMove();
+            this.executeHeuristicMove();
         }
 
         int[] finalPoints = this.calculatePoints();
         if (finalPoints[0] > finalPoints[1]) {
-            return true;
+            return 1.0;
+        } else if (finalPoints[0] < finalPoints[1]) {
+            return 0;
         }
 
-        return false;
+        return 0.5;
     }
 
     /**
@@ -187,8 +208,16 @@ public class StateCopy {
                     }
                 }
 
-                if (this.field.get(colorPlayMove+offset).size() == 0 && (sameColor <= 2 || colorValue <= 11)) {
+                if (this.field.get(colorPlayMove+offset).size() == 0 && (sameColor <= 2 || colorValue <= 10)) {
                     // don't open expedition if there is no hope for it to be successful
+                    possibleMoves.remove(i);
+                    i--;
+                    continue;
+                }
+
+                if (playMove.getCardObject().getValue() == 0 &&
+                        this.field.get(colorPlayMove).size() == 0 && (sameColor <= 3 || colorValue <= 12)) {
+                    // don't play a wager card if your hand cards are not good enough
                     possibleMoves.remove(i);
                     i--;
                     continue;
@@ -325,13 +354,13 @@ public class StateCopy {
     }
 
     private void addTakeMoves(List<MoveSet> moveList, PlayMove playMove, int currentPlayer, int cardColor) {
+        moveList.add(new MoveSet(playMove, new TakeMove(currentPlayer, 5)));
         for (int j = 0; j < 5; j++) {
             if (j != cardColor && this.discardedCards.get(j).size() > 0) {
                 MoveSet moveSet = new MoveSet(playMove, new TakeMove(currentPlayer, j));
                 moveList.add(moveSet);
             }
         }
-        moveList.add(new MoveSet(playMove, new TakeMove(currentPlayer, 5)));
     }
 
     private void applyMove(MoveSet move, List<Card> currentPlayerCards, int offset) {
@@ -357,5 +386,156 @@ public class StateCopy {
                     this.discardedCards.get((takeMove.getTarget())).size()-1));
             this.discardedCards.get(takeMove.getTarget()).remove(this.discardedCards.get((takeMove.getTarget())).size()-1);
         }
+    }
+
+    private void applyMoveCopy(MoveSet move, List<Card> currentPlayerCards, int offset, List<List<Card>> copyField,
+                               List<List<Card>> copyDiscarded, List<Card> copyPile) {
+        // PlayMove Sequence
+        PlayMove playMove = move.getPlayMove();
+
+        if (playMove.getTarget() == 1) {
+            copyField.get(playMove.getCardObject().getColorCode()+offset).add(playMove.getCardObject());
+        } else {
+            copyDiscarded.get(playMove.getCardObject().getColorCode()).add(playMove.getCardObject());
+        }
+        currentPlayerCards.remove(playMove.getCard()-1);
+
+        // TakeMove Sequence
+        TakeMove takeMove = move.getTakeMove();
+
+        if (takeMove.getTarget() == 5) {
+            currentPlayerCards.add(copyPile.get(0));
+            copyPile.remove(0);
+        } else {
+            currentPlayerCards.add(copyDiscarded.get((takeMove.getTarget())).get(
+                    copyDiscarded.get((takeMove.getTarget())).size()-1));
+            copyDiscarded.get(takeMove.getTarget()).remove(copyDiscarded.get((takeMove.getTarget())).size()-1);
+        }
+    }
+
+    private int calculateHeuristic(MoveSet move) {
+        /**
+         * Copy list of cards.
+         */
+        List<Card> copyPile = new ArrayList<Card>(this.pile.size());
+        copyPile.addAll(this.pile);
+
+        List<Card> copyPlayerCards = new ArrayList(8);
+        copyPlayerCards.addAll(this.playerCards);
+
+        List<Card> copyOpponentCards = new ArrayList(8);
+        copyOpponentCards.addAll(this.opponentsCards);
+
+        List<List<Card>> copyField = new ArrayList<>(10);
+        for (int i = 0; i < 10; i++) {
+            copyField.add(new ArrayList());
+            copyField.get(i).addAll(this.field.get(i));
+        }
+
+        List<List<Card>> copyDiscard = new ArrayList<>(5);
+        for (int i = 0; i < 5; i++) {
+            copyDiscard.add(new ArrayList());
+            copyDiscard.get(i).addAll(this.discardedCards.get(i));
+        }
+
+        /**
+         * Execute move.
+         **/
+        if (move.getPlayMove().getPlayer() == 1) {
+            this.applyMoveCopy(move, copyPlayerCards, 0, copyField, copyDiscard, copyPile);
+        } else {
+            this.applyMoveCopy(move, copyOpponentCards, 5, copyField, copyDiscard, copyPile);
+        }
+
+        /**
+         * Evaluate the game state.
+         */
+        int heuristic = 0;
+
+        int amountExpeditions = 0;
+        // own expeditions
+        for (int i = 0; i < 5; i++) {
+            if (copyField.get(i).size() > 0) {
+                amountExpeditions++;
+
+                int points = 0;
+                for (int j = 0; j < copyField.get(i).size(); j++) {
+                    int value = copyField.get(i).get(j).getValue();
+                    ;
+                    points += value;
+
+                    if (value == 0) {
+                        for (int x = 0; x < copyPlayerCards.size(); x++) {
+                            if (copyPlayerCards.get(x).getColorCode() == j &&
+                                    copyPlayerCards.get(x).getValue() > copyField.get(i).get(copyField.get(i).size() - 1).getValue()) {
+                                heuristic += copyPlayerCards.get(x).getValue();
+                            }
+                        }
+                    }
+                }
+
+                double factor;
+                if (copyPile.size() < 15) {
+                    factor = 1.0;
+                } else if (copyPile.size() < 28) {
+                    factor = 0.67;
+                } else {
+                    factor = 0.33;
+                }
+                heuristic += (20 - points) * factor;
+                heuristic += copyField.get(i).size() * 3;
+            }
+        }
+
+        // opponent's expedition
+        for (int i = 5; i < 10; i++) {
+            if (copyField.get(i).size() > 0) {
+
+                int points = 0;
+                for (int j = 0; j < copyField.get(i).size(); j++) {
+                    int value = copyField.get(i).get(j).getValue();
+                    ;
+                    points += value;
+
+                    if (value == 0) {
+                        for (int x = 0; x < copyOpponentCards.size(); x++) {
+                            if (copyOpponentCards.get(x).getColorCode() == j &&
+                                    copyOpponentCards.get(x).getValue() > copyField.get(i).get(copyField.get(i).size() - 1).getValue()) {
+                                heuristic -= copyOpponentCards.get(x).getValue();
+                            }
+                        }
+                    }
+                }
+
+                double factor;
+                if (copyPile.size() < 15) {
+                    factor = 1.0;
+                } else if (copyPile.size() < 28) {
+                    factor = 0.67;
+                } else {
+                    factor = 0.33;
+                }
+                heuristic -= (20 - points) * factor;
+                heuristic -= copyField.get(i).size() * 3;
+            }
+        }
+
+        // decrease heuristic for having no optimal number of open expeditions
+        if (amountExpeditions == 0) {
+            if (copyField.size() <= 35) {
+                heuristic -= 10;
+            }
+            if (copyField.size() <= 25) {
+                heuristic -= 20;
+            }
+        } else if (amountExpeditions == 1 && copyField.size() <= 25) {
+            heuristic -= 10;
+        } else if (amountExpeditions == 4) {
+            heuristic -= 10;
+        } else if (amountExpeditions == 5) {
+            heuristic -= 20;
+        }
+
+        return heuristic;
     }
 }

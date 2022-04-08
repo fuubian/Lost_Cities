@@ -1,11 +1,12 @@
-package AI.InformationSet;
+package AI.MCTS.InformationSetHard2;
 
 public class MCTSThread extends Thread {
 
     private MCTSAgent agent;
     private boolean running;
+    private boolean finished = false;
 
-    public MCTSThread (MCTSAgent agent) {
+    public MCTSThread(MCTSAgent agent) {
         this.agent = agent;
     }
 
@@ -14,9 +15,14 @@ public class MCTSThread extends Thread {
         while (this.running) {
             this.agent.runThrough();
         }
+        this.finished = true;
     }
 
     public void stopRun() {
         this.running = false;
+    }
+
+    public boolean isFinished() {
+        return  this.finished;
     }
 }

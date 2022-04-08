@@ -106,6 +106,7 @@ public class ImprovedRandomAI extends ArtificialIntelligence {
                     if (card.getColorCode() == colorPlayMove) {
                         if (card.getValue() < playMove.getCardObject().getValue() &&
                                 card.getValue() != 0) {
+                            // don't play a high card if there is still a lower card for this color on your hand
                             possibleMoves.remove(i);
                             i--;
                             continue Main;
@@ -116,8 +117,16 @@ public class ImprovedRandomAI extends ArtificialIntelligence {
                     }
                 }
 
-                if (state.getField().get(colorPlayMove).size() == 0 && (sameColor <= 2 || colorValue <= 11)) {
+                if (state.getField().get(colorPlayMove).size() == 0 && (sameColor <= 2 || colorValue <= 10)) {
                     // don't open expedition if there is no hope for it to be successful
+                    possibleMoves.remove(i);
+                    i--;
+                    continue;
+                }
+
+                if (playMove.getCardObject().getValue() == 0 &&
+                        state.getField().get(colorPlayMove).size() == 0 && (sameColor <= 3 || colorValue <= 12)) {
+                    // don't play a wager card if your hand cards are not good enough
                     possibleMoves.remove(i);
                     i--;
                     continue;

@@ -2,8 +2,8 @@ package Game;
 
 import AI.ArtificialIntelligence;
 import AI.ImprovedRandomAI;
-import AI.InformationSet.InformationSetAI;
-import AI.RandomAI;
+import AI.MCTS.InformationSetHard.InformationSetAIHard;
+import AI.MCTS.InformationSetHard2.InformationSetAIHard2;
 
 import java.util.List;
 
@@ -11,16 +11,17 @@ public class RunningGame {
 
     static ArtificialIntelligence AI1, AI2;
     static Game game;
-    static final boolean textActive = false;
-    static final boolean analysisActive = true;
-    static final int AMOUNT_GAMES = 100000;
+    static final boolean textActive = true;
+    static final boolean analysisActive = false;
+    static final int AMOUNT_GAMES = 1;
 
     public static void main(String[] args) {
+        long time = System.currentTimeMillis();
         int[][] allPoints = new int[AMOUNT_GAMES][2];
         for (int i = 0; i < AMOUNT_GAMES; i++) {
             game = new Game();
-            AI1 = new ImprovedRandomAI(1);
-            AI2 = new RandomAI(2);
+            AI1 = new InformationSetAIHard2(1);
+            AI2 = new InformationSetAIHard(2);
 
             while (game.getState() != 4) {
                 if (textActive) {
@@ -98,6 +99,8 @@ public class RunningGame {
             System.out.println("Highest Points: " + highest);
             System.out.println("Lowest Points: " + lowest);
         }
+
+        System.out.println("Time needed: " + (System.currentTimeMillis()-time));
     }
 
     public static void printField(GameState state) {

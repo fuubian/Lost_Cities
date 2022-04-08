@@ -1,4 +1,4 @@
-package AI.InformationSet;
+package AI.MCTS.InformationSetHard2;
 
 import Game.MoveSet;
 
@@ -12,16 +12,19 @@ public class Node {
 
     private double winCount = 0;
     private int visitCount = 0;
-    private int availabilityCount = 1;
+    private int availabilityCount = 0;
 
     // Coefficient c for exploration term.
-    private final double CONSTANT_C = 0.7;
+    private double CONSTANT_C = 0.7;
 
     // Which move was executed to reach this node.
     private final MoveSet move;
 
     // Was the last move executed by the player.
     private final boolean ownMove;
+
+    // Which moves were with the current determinzation legal.
+    private List<MoveSet> currentLegalMoves;
 
     // root constructor
     public Node() {
@@ -98,8 +101,6 @@ public class Node {
                         bestUCT = i;
                         currentUCT = this.children.get(i).calculateUCT();
                     }
-                    // It is easier to increase the availability counts here instead during the backpropagation.
-                    this.children.get(i).increaseAvailability();
                     break;
                 }
             }
@@ -134,15 +135,30 @@ public class Node {
         }
 
         // UCT by opponent's view
-        return ((this.visitCount - this.winCount) / this.visitCount) + this.CONSTANT_C * Math.sqrt(Math.log(this.availabilityCount)/this.visitCount);
+        return 1.0 - (this.winCount / (double)this.visitCount) + this.CONSTANT_C * Math.sqrt(Math.log(this.availabilityCount)/this.visitCount);
     }
 
     /**
      * Updates the visitCount and the winCount.
      */
-    public void update(int reward) {
+    public void update(double reward) {
         this.visitCount++;
         this.winCount += reward;
+    }
+
+    public void updateAvailabilityChildren() {
+        for (Node child : this.children) {
+            for (MoveSet move : this.currentLegalMoves) {
+                if (child.getMove().equals(move)) {
+                    child.updateAvailability(1);
+                    break;
+                }
+            }
+        }
+    }
+
+    public void setCurrentLegalMoves(List<MoveSet> legalMoves) {
+        this.currentLegalMoves = legalMoves;
     }
 
     public void updateVisit(int visit) {
@@ -155,10 +171,6 @@ public class Node {
 
     public void updateAvailability(int availability) {
         this.availabilityCount += availability;
-    }
-
-    public void increaseAvailability() {
-        this.availabilityCount++;
     }
 
     public double getWin() {
@@ -183,5 +195,15 @@ public class Node {
 
     public List<Node> getChildren() {
         return this.children;
+    }
+
+    public void getCorrectVisited() {
+        int visited = 0;
+        for (Node child : children) {
+            visited += child.getVisitCount();
+        }
+
+        System.out.println("Visit Count: " + visited);
+        System.out.println("Availability Count: " + children.get(0).getAvailabilityCount());
     }
 }

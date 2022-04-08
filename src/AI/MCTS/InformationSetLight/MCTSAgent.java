@@ -1,4 +1,4 @@
-package AI.InformationSet;
+package AI.MCTS.InformationSetLight;
 
 import Game.MoveSet;
 import Game.Card;
@@ -36,7 +36,7 @@ public class MCTSAgent {
                 // no node exists to that move OR it is a terminal node
                 selectionCompleted = true;
             } else {
-                //Collections.shuffle(possibleMoves);
+                currentNode.setCurrentLegalMoves(possibleMoves);
                 MoveSet move = currentNode.searchUnexploredNode(possibleMoves);
                 if (move == null) {
                     // Look for move with best UCT and descend
@@ -63,12 +63,13 @@ public class MCTSAgent {
             }
 
             // Simulation
-            int reward = copy.simulateGame() ? 1 : 0;
+            double reward = copy.simulateGame();
 
             // Backpropagation
             while (currentNode.getFather() != null) {
                 currentNode.update(reward);
                 currentNode = currentNode.getFather();
+                currentNode.updateAvailabilityChildren();
             }
 
             break;

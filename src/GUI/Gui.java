@@ -1,7 +1,7 @@
-package Client;
+package GUI;
 
 import AI.ArtificialIntelligence;
-import AI.InformationSet2.InformationSetAI2;
+import AI.MCTS.InformationSetHard.InformationSetAIHard;
 import Game.Game;
 import Game.GameState;
 import Game.Card;
@@ -54,7 +54,7 @@ public class Gui extends JFrame {
      */
     public Gui() {
         this.game = new Game();
-        this.AI = new InformationSetAI2(2);
+        this.AI = new InformationSetAIHard(2);
         this.cards = this.game.getGameState(1).getPlayerCards();
 
         setResizable(false);

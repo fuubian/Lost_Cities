@@ -1,21 +1,15 @@
-package AI.InformationSet;
+package AI.MCTS.InformationSetHard2;
 
 import AI.ArtificialIntelligence;
-import Game.MoveSet;
-import Game.Card;
-import Game.GameState;
-import Game.PlayMove;
-import Game.TakeMove;
+import Game.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class InformationSetAI extends ArtificialIntelligence {
+public class InformationSetAIHard2 extends ArtificialIntelligence {
 
     private final int player;
     private MoveSet move;
-
-    private final int AMOUNT_THREADS = 3;
 
     /**
      * A list of all opponent's cards that are known.
@@ -23,8 +17,9 @@ public class InformationSetAI extends ArtificialIntelligence {
     private List<Card> knownOpponentCards;
 
     private final long MAX_TIME = 10000;
+    private final int AMOUNT_THREADS = 3;
 
-    public InformationSetAI(int player) {
+    public InformationSetAIHard2(int player) {
         this.player = player;
         this.knownOpponentCards = new ArrayList<>();
     }
@@ -92,8 +87,16 @@ public class InformationSetAI extends ArtificialIntelligence {
             threads.get(i).stopRun();
         }
 
-        Node root = agents.get(0).getRoot();
-        for (int i = 1; i < AMOUNT_THREADS+1; i++) {
+        Node root = agents.get(AMOUNT_THREADS).getRoot();
+        for (int i = 0; i < AMOUNT_THREADS; i++) {
+            while (!threads.get(i).isFinished()) {
+                // wait until last iteration was finished
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             root.fusionWithOther(agents.get(i).getRoot());
         }
 
