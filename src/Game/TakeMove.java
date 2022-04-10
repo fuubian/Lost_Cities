@@ -1,8 +1,6 @@
 package Game;
 
-import java.io.Serializable;
-
-public class TakeMove implements Serializable {
+public class TakeMove {
 
     private int player; // 1 or 2
     private int target; // 0-red; 1-green; ... 5 - stack

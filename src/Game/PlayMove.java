@@ -1,8 +1,6 @@
 package Game;
 
-import java.io.Serializable;
-
-public class PlayMove implements Serializable {
+public class PlayMove{
 
     private final int player; // 1 or 2
     private final int card;   // 1-8

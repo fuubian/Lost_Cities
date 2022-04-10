@@ -1,9 +1,6 @@
 package Game;
 
-import java.io.Serializable;
-import java.util.Objects;
-
-public class Card implements Serializable {
+public class Card {
 
     private String color;
     private int value;

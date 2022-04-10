@@ -1,9 +1,8 @@
 package Game;
 
-import java.io.Serializable;
 import java.util.List;
 
-public class GameState implements Serializable {
+public class GameState {
 
     private final List<Card> playerCards;
 

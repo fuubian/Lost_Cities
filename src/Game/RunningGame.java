@@ -4,6 +4,8 @@ import AI.ArtificialIntelligence;
 import AI.ImprovedRandomAI;
 import AI.MCTS.InformationSetHard.InformationSetAIHard;
 import AI.MCTS.InformationSetHard2.InformationSetAIHard2;
+import AI.MCTS.InformationSetLight.InformationSetAILight;
+import AI.RandomAI;
 
 import java.util.List;
 
@@ -20,8 +22,8 @@ public class RunningGame {
         int[][] allPoints = new int[AMOUNT_GAMES][2];
         for (int i = 0; i < AMOUNT_GAMES; i++) {
             game = new Game();
-            AI1 = new InformationSetAIHard2(1);
-            AI2 = new InformationSetAIHard(2);
+            AI1 = new InformationSetAILight(1);
+            AI2 = new RandomAI(2);
 
             while (game.getState() != 4) {
                 if (textActive) {
