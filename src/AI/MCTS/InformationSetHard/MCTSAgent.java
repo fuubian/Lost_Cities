@@ -19,7 +19,7 @@ public class MCTSAgent {
         this.player = player;
         this.knownOpponentCards = knownOpponentCards;
 
-        this.root = new Node();
+        this.root = new Node(this.player);
     }
 
     public void runThrough() {

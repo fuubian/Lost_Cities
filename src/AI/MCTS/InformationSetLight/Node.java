@@ -1,6 +1,7 @@
 package AI.MCTS.InformationSetLight;
 
 import Game.MoveSet;
+import Game.RunningGame;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +16,7 @@ public class Node {
     private int availabilityCount = 0;
 
     // Coefficient c for exploration term.
-    private double CONSTANT_C = 0.7;
+    private final double CONSTANT_C;
 
     // Which move was executed to reach this node.
     private final MoveSet move;
@@ -27,23 +28,30 @@ public class Node {
     private List<MoveSet> currentLegalMoves;
 
     // root constructor
-    public Node() {
+    public Node(int player) {
         this.father = null;
         this.children = new ArrayList<>();
         this.move = null;
         this.ownMove = false;
+
+        if (player == 1) {
+            this.CONSTANT_C = RunningGame.C_VALUE1;
+        } else {
+            this.CONSTANT_C = RunningGame.C_VALUE2;
+        }
     }
 
     // child constructor
-    public Node(Node father, MoveSet move, boolean ownMove) {
+    public Node(Node father, MoveSet move, boolean ownMove, double CONSTANT_C) {
         this.father = father;
         this.move = move;
         this.children = new ArrayList<>();
         this.ownMove = ownMove;
+        this.CONSTANT_C = CONSTANT_C;
     }
 
     public Node expand(MoveSet newMove) {
-        Node child = new Node(this, newMove, !this.ownMove);
+        Node child = new Node(this, newMove, !this.ownMove, this.CONSTANT_C);
         this.children.add(child);
 
         return child;

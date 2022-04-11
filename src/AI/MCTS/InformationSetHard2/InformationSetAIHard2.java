@@ -17,7 +17,7 @@ public class InformationSetAIHard2 extends ArtificialIntelligence {
     private List<Card> knownOpponentCards;
 
     private final long MAX_TIME = 10000;
-    private final int AMOUNT_THREADS = 3;
+    private final int AMOUNT_THREADS = 5;
 
     public InformationSetAIHard2(int player) {
         this.player = player;

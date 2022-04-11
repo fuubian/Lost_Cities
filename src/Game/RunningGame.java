@@ -7,23 +7,35 @@ import AI.MCTS.InformationSetHard2.InformationSetAIHard2;
 import AI.MCTS.InformationSetLight.InformationSetAILight;
 import AI.RandomAI;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.List;
 
 public class RunningGame {
 
     static ArtificialIntelligence AI1, AI2;
     static Game game;
-    static final boolean textActive = true;
-    static final boolean analysisActive = false;
-    static final int AMOUNT_GAMES = 1;
+    static final boolean textActive = false;
+    static final boolean analysisActive = true;
+    static final int AMOUNT_GAMES = 250;
+
+    /**
+     * Static values that are used by the Information Set AIs.
+     * This enables to test AI's with different c constants and
+     * different max_n values.
+     */
+    public static final double C_VALUE1 = 0.7;
+    public static final double C_VALUE2 = 0.7;
+    public static final int MAX_N1 = 7;
+    public static final int MAX_N2 = 7;
 
     public static void main(String[] args) {
         long time = System.currentTimeMillis();
         int[][] allPoints = new int[AMOUNT_GAMES][2];
         for (int i = 0; i < AMOUNT_GAMES; i++) {
             game = new Game();
-            AI1 = new InformationSetAILight(1);
-            AI2 = new RandomAI(2);
+            AI1 = new ImprovedRandomAI(1);
+            AI2 = new ImprovedRandomAI(2);
 
             while (game.getState() != 4) {
                 if (textActive) {
@@ -80,6 +92,17 @@ public class RunningGame {
             int lowest = allPoints[0][0];
             long ownPoints = 0;
             long opponentPoints = 0;
+
+            try {
+                PrintWriter writer = new PrintWriter("results.csv");
+                for (int i = 0; i < AMOUNT_GAMES; i++) {
+                    writer.write(allPoints[i][0] + ";" + allPoints[i][1] + "\n");
+                }
+                writer.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
             for (int i = 0; i < AMOUNT_GAMES; i++) {
                 if (allPoints[i][0] > highest) {
                     highest = allPoints[i][0];

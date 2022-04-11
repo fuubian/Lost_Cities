@@ -8,6 +8,8 @@ import java.util.List;
 
 public class StateCopy {
 
+    private final int MAX_N;
+
     private final List<Card> playerCards;
     private final List<Card> opponentsCards;    // random cards
 
@@ -67,6 +69,12 @@ public class StateCopy {
         this.opponentsCards = new ArrayList<>();
         this.opponentsCards.addAll(knownOpponentCards);
         this.createRandomCards(state);
+
+        if (this.player == 1) {
+            this.MAX_N = RunningGame.MAX_N1;
+        } else {
+            this.MAX_N = RunningGame.MAX_N2;
+        }
     }
 
     /**
@@ -74,6 +82,11 @@ public class StateCopy {
      */
     public MoveSet executeHeuristicMove() {
         List<MoveSet> possibleMoves = this.getPossibleMoves();
+        Collections.shuffle(possibleMoves);
+
+        for (int i = MAX_N; i < possibleMoves.size();) {
+            possibleMoves.remove(i);
+        }
 
         MoveSet move = possibleMoves.get(0);
         int bestHeuristic = this.calculateHeuristic(move);
@@ -465,12 +478,9 @@ public class StateCopy {
                     points += value;
 
                     if (value == 0) {
-                        for (int x = 0; x < copyPlayerCards.size(); x++) {
-                            if (copyPlayerCards.get(x).getColorCode() == j &&
-                                    copyPlayerCards.get(x).getValue() > copyField.get(i).get(copyField.get(i).size() - 1).getValue()) {
-                                heuristic += copyPlayerCards.get(x).getValue();
-                            }
-                        }
+                        heuristic += 7;
+                    } else if (value >= 7 && copyPile.size() > 30) {
+                        heuristic -= value;
                     }
                 }
 
@@ -498,12 +508,9 @@ public class StateCopy {
                     points += value;
 
                     if (value == 0) {
-                        for (int x = 0; x < copyOpponentCards.size(); x++) {
-                            if (copyOpponentCards.get(x).getColorCode() == j &&
-                                    copyOpponentCards.get(x).getValue() > copyField.get(i).get(copyField.get(i).size() - 1).getValue()) {
-                                heuristic -= copyOpponentCards.get(x).getValue();
-                            }
-                        }
+                        heuristic -= 7;
+                    } else if (value >= 7 && copyPile.size() > 30) {
+                        heuristic += value;
                     }
                 }
 
