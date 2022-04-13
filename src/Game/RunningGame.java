@@ -17,7 +17,7 @@ public class RunningGame {
     static Game game;
     static final boolean textActive = false;
     static final boolean analysisActive = true;
-    static final int AMOUNT_GAMES = 250;
+    static final int AMOUNT_GAMES = 5;
 
     /**
      * Static values that are used by the Information Set AIs.
@@ -25,7 +25,7 @@ public class RunningGame {
      * different max_n values.
      */
     public static final double C_VALUE1 = 0.7;
-    public static final double C_VALUE2 = 0.7;
+    public static final double C_VALUE2 = 0.5;
     public static final int MAX_N1 = 7;
     public static final int MAX_N2 = 7;
 
@@ -34,8 +34,8 @@ public class RunningGame {
         int[][] allPoints = new int[AMOUNT_GAMES][2];
         for (int i = 0; i < AMOUNT_GAMES; i++) {
             game = new Game();
-            AI1 = new ImprovedRandomAI(1);
-            AI2 = new ImprovedRandomAI(2);
+            AI1 = new InformationSetAILight(1);
+            AI2 = new InformationSetAILight(2);
 
             while (game.getState() != 4) {
                 if (textActive) {

@@ -87,6 +87,38 @@ public class StateCopy {
         return move;
     }
 
+    public void executeSimulationMove(List<Card> handCards, int player, int offset) {
+        // randomize a move
+        int card = (int) (Math.random() * 8);
+        int color = handCards.get(card).getColorCode();
+        int target;
+
+        if (this.field.get(color+offset).size() > 0 &&
+                this.field.get(color+offset).get(this.field.get(color+offset).size()-1).getValue() <= handCards.get(card).getValue()) {
+            target = (int) (Math.random() * 2) + 1;
+        } else {
+            target = 2;
+        }
+
+        PlayMove playMove = new PlayMove(player, card+1, handCards.get(card), target);
+
+        int target2;
+
+        while (true) {
+            target2 = (int) (Math.random() * 6);;
+            if (target2 == 5) {
+                break;
+            } else if (this.discardedCards.get(target2).size() > 0 && target2 != color) {
+                break;
+            }
+        }
+
+        TakeMove takeMove = new TakeMove(player, target2);
+        MoveSet move = new MoveSet(playMove, takeMove);
+
+        this.executeMove(move);
+    }
+
     /**
      * Applies a move to the current state.
      */
@@ -124,7 +156,13 @@ public class StateCopy {
 
     public double simulateGame() {
         while (this.roundState != 4) {
-            this.executeRandomMove();
+            if (this.player == 1 && this.roundState == 0 || this.player == 2 && this.roundState == 2) {
+                // Own Move
+                this.executeSimulationMove(this.playerCards, this.player, 0);
+            } else {
+                // Opponent's move
+                this.executeSimulationMove(this.opponentsCards, this.opponent, 5);
+            }
         }
 
         int[] finalPoints = this.calculatePoints();
