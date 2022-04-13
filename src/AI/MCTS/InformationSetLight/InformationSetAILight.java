@@ -20,7 +20,7 @@ public class InformationSetAILight extends ArtificialIntelligence {
      */
     private List<Card> knownOpponentCards;
 
-    private final long MAX_TIME = 5500;
+    private final long MAX_TIME = 10000;
     private final int AMOUNT_THREADS = 5;
 
     public InformationSetAILight(int player) {
