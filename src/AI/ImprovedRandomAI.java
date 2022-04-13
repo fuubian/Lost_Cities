@@ -47,7 +47,7 @@ public class ImprovedRandomAI extends ArtificialIntelligence {
         for (int i = 0; i < 8; i++) {
             // all combinations of discarding moves + drawing moves
             PlayMove discardMove = new PlayMove(this.player, i + 1, playerCards.get(i), 2);
-            int cardColor = playerCards.get(i).getColorCode();
+            int cardColor = playerCards.get(i).getColor();
             this.addTakeMoves(possibleMoves, discardMove, cardColor, state);
 
             // all combination of expedition moves + drawing moves
@@ -80,7 +80,7 @@ public class ImprovedRandomAI extends ArtificialIntelligence {
         for (int i = 0; i < possibleMoves.size(); i++) {
             // inspect PlayMove for mistakes
             PlayMove playMove = possibleMoves.get(i).getPlayMove();
-            int colorPlayMove = playMove.getCardObject().getColorCode();
+            int colorPlayMove = playMove.getCardObject().getColor();
             if (playMove.getTarget() == 2) {
                 // don't discard useful cards
                 if (state.getField().get(colorPlayMove).size() > 0 &&
@@ -103,7 +103,7 @@ public class ImprovedRandomAI extends ArtificialIntelligence {
                 int sameColor = 0;
                 int colorValue = 0;
                 for (Card card : playerCards) {
-                    if (card.getColorCode() == colorPlayMove) {
+                    if (card.getColor() == colorPlayMove) {
                         if (card.getValue() < playMove.getCardObject().getValue() &&
                                 card.getValue() != 0) {
                             // don't play a high card if there is still a lower card for this color on your hand
@@ -139,7 +139,7 @@ public class ImprovedRandomAI extends ArtificialIntelligence {
             if (colorTakeMove != 5) {
                 int sameColor = 0;
                 for (Card card : playerCards) {
-                    if (card.getColorCode() == colorPlayMove) {
+                    if (card.getColor() == colorPlayMove) {
                         sameColor++;
                     }
                 }

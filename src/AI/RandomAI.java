@@ -40,7 +40,7 @@ public class RandomAI extends ArtificialIntelligence {
         for (int i = 0; i < 8; i++) {
             // all combinations of discarding moves + drawing moves
             PlayMove discardMove = new PlayMove(this.player, i+1, playerCards.get(i), 2);
-            int cardColor = playerCards.get(i).getColorCode();
+            int cardColor = playerCards.get(i).getColor();
             this.addTakeMoves(possibleMoves, discardMove, cardColor, state);
 
             // all combination of expedition moves + drawing moves

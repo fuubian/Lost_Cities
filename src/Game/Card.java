@@ -2,33 +2,24 @@ package Game;
 
 public class Card {
 
-    private String color;
+    /**
+     * 0 - Red
+     * 1 - Green
+     * 2 - Blue
+     * 3 - White
+     * 4 - Yellow
+     */
+    private int color;
     private int value;
 
-    public Card (String color, int value) {
+    public Card (int color, int value) {
         this.color = color;
         this.value = value;
     }
 
-    public String getColor() {return this.color;}
+    public int getColor() {return this.color;}
+
     public int getValue() {return this.value;}
-
-    public int getColorCode() {
-        switch (this.color) {
-            case "Red":
-                return 0;
-            case "Green":
-                return 1;
-            case "Blue":
-                return 2;
-            case "White":
-                return 3;
-            case "Yellow":
-                return 4;
-        }
-
-        return -1;
-    }
 
     public boolean equals(Card other) {
         if (this.color == other.getColor() && this.value == other.getValue()) {
@@ -40,7 +31,26 @@ public class Card {
 
     @Override
     public String toString() {
-        return color+value;
+        String text = "";
+        switch (this.color) {
+            case 0:
+                text += "Red";
+                break;
+            case 1:
+                text += "Green";
+                break;
+            case 2:
+                text += "Blue";
+                break;
+            case 3:
+                text += "White";
+                break;
+            case 4:
+                text += "Yellow";
+                break;
+        }
+
+        return text+value;
     }
 
 }

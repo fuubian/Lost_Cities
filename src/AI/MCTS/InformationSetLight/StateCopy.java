@@ -90,10 +90,10 @@ public class StateCopy {
     public void executeSimulationMove(List<Card> handCards, int player, int offset) {
         // randomize a move
         int card = (int) (Math.random() * 8);
-        int color = handCards.get(card).getColorCode();
+        int color = handCards.get(card).getColor();
         int target;
 
-        if (this.field.get(color+offset).size() > 0 &&
+        if (this.field.get(color+offset).size() == 0 ||
                 this.field.get(color+offset).get(this.field.get(color+offset).size()-1).getValue() <= handCards.get(card).getValue()) {
             target = (int) (Math.random() * 2) + 1;
         } else {
@@ -105,10 +105,10 @@ public class StateCopy {
         int target2;
 
         while (true) {
-            target2 = (int) (Math.random() * 6);;
+            target2 = (int) (Math.random() * 6);
             if (target2 == 5) {
                 break;
-            } else if (this.discardedCards.get(target2).size() > 0 && target2 != color) {
+            } else if (this.discardedCards.get(target2).size() > 0 && (target == 2 || target2 != color)) {
                 break;
             }
         }
@@ -210,16 +210,15 @@ public class StateCopy {
 
     private void createRandomCards(GameState state) {
         // create all Cards
-        this.pile = new ArrayList<>(60);
-        String[] colors = {"Red", "Green", "Blue", "White", "Yellow"};
+        this.pile = new ArrayList<>();
 
-        for (int i = 0; i < colors.length; i++) {
+        for (int i = 0; i < 5; i++) {
             for (int x = 2; x <= 10; x++) {
-                this.pile.add(new Card(colors[i], x));
+                this.pile.add(new Card(i, x));
             }
-            this.pile.add(new Card(colors[i], 0));
-            this.pile.add(new Card(colors[i], 0));
-            this.pile.add(new Card(colors[i], 0));
+            this.pile.add(new Card(i, 0));
+            this.pile.add(new Card(i, 0));
+            this.pile.add(new Card(i, 0));
         }
 
         // removing known cards from pile
@@ -247,7 +246,7 @@ public class StateCopy {
     private void removeCardsFromPile(List<Card> list) {
         for (Card c : list) {
             for (int i = 0; i < this.pile.size(); i++) {
-                if (c.getColorCode() == this.pile.get(i).getColorCode()) {
+                if (c.getColor() == this.pile.get(i).getColor()) {
                     if (c.getValue() == this.pile.get(i).getValue()) {
                         this.pile.remove(i);
                         break;
@@ -261,7 +260,7 @@ public class StateCopy {
         for (int i = 0; i < 8; i++) {
             // all combinations of discarding moves + drawing moves
             PlayMove discardMove = new PlayMove(currentPlayer, i+1, currentPlayerCards.get(i), 2);
-            int cardColor = currentPlayerCards.get(i).getColorCode();
+            int cardColor = currentPlayerCards.get(i).getColor();
             this.addTakeMoves(moveList, discardMove, currentPlayer, cardColor);
 
             // all combination of expedition moves + drawing moves
@@ -288,9 +287,9 @@ public class StateCopy {
         PlayMove playMove = move.getPlayMove();
 
         if (playMove.getTarget() == 1) {
-            this.field.get(playMove.getCardObject().getColorCode()+offset).add(playMove.getCardObject());
+            this.field.get(playMove.getCardObject().getColor()+offset).add(playMove.getCardObject());
         } else {
-            this.discardedCards.get(playMove.getCardObject().getColorCode()).add(playMove.getCardObject());
+            this.discardedCards.get(playMove.getCardObject().getColor()).add(playMove.getCardObject());
         }
         currentPlayerCards.remove(playMove.getCard()-1);
 

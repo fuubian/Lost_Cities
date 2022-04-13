@@ -66,18 +66,18 @@ public class Game {
         }
 
         if (move.getTarget() == 1) {    // field
-            if (field.get(card.getColorCode() + added).size() > 0) {
-                if (field.get(card.getColorCode() + added).get(field.get(card.getColorCode() + added).size()-1).getValue() <= card.getValue()) {
-                    this.field.get(card.getColorCode()+added).add(card);
+            if (field.get(card.getColor() + added).size() > 0) {
+                if (field.get(card.getColor() + added).get(field.get(card.getColor() + added).size()-1).getValue() <= card.getValue()) {
+                    this.field.get(card.getColor()+added).add(card);
                 } else {
                     return false;
                 }
             } else {
-                this.field.get(card.getColorCode() + added).add(card);
+                this.field.get(card.getColor() + added).add(card);
             }
         } else if (move.getTarget() == 2) { // discarded
-            this.discardedCards.get(card.getColorCode()).add(card);
-            this.blockedCard = card.getColorCode(); // the card isn't allowed to be taken in the same move
+            this.discardedCards.get(card.getColor()).add(card);
+            this.blockedCard = card.getColor(); // the card isn't allowed to be taken in the same move
         }
 
         if (move.getPlayer() == 1) {
@@ -149,16 +149,15 @@ public class Game {
     public int getState() {return this.state;}
 
     private void createCards() {
-        this.deck = new ArrayList<Card>();
-        String[] colors = {"Red", "Green", "Blue", "White", "Yellow"};
+        this.deck = new ArrayList<>(60);
 
-        for (int i = 0; i < colors.length; i++) {
+        for (int i = 0; i < 5; i++) {
             for (int x = 2; x <= 10; x++) {
-                this.deck.add(new Card(colors[i], x));
+                this.deck.add(new Card(i, x));
             }
-            this.deck.add(new Card(colors[i], 0));
-            this.deck.add(new Card(colors[i], 0));
-            this.deck.add(new Card(colors[i], 0));
+            this.deck.add(new Card(i, 0));
+            this.deck.add(new Card(i, 0));
+            this.deck.add(new Card(i, 0));
         }
 
         Collections.shuffle(this.deck);
