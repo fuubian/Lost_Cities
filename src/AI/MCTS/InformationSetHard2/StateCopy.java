@@ -473,12 +473,13 @@ public class StateCopy {
                 int points = 0;
                 for (int j = 0; j < copyField.get(i).size(); j++) {
                     int value = copyField.get(i).get(j).getValue();
-                    ;
                     points += value;
 
                     if (value == 0) {
                         heuristic += 7;
                     } else if (value >= 7 && copyPile.size() > 30) {
+                        heuristic -= value;
+                    } else if (value >= 9 && copyPile.size() > 25) {
                         heuristic -= value;
                     }
                 }
@@ -493,12 +494,19 @@ public class StateCopy {
                 }
                 heuristic += (20 - points) * factor;
                 heuristic += copyField.get(i).size() * 3;
+
+                if (copyField.get(i).size() >= 8) {
+                    // bonus points
+                    heuristic += 20;
+                }
             }
         }
 
+        int enemyExpeditions = 0;
         // opponent's expedition
         for (int i = 5; i < 10; i++) {
             if (copyField.get(i).size() > 0) {
+                enemyExpeditions++;
 
                 int points = 0;
                 for (int j = 0; j < copyField.get(i).size(); j++) {
@@ -509,6 +517,8 @@ public class StateCopy {
                     if (value == 0) {
                         heuristic -= 7;
                     } else if (value >= 7 && copyPile.size() > 30) {
+                        heuristic += value;
+                    } else if (value >= 9 && copyPile.size() > 25) {
                         heuristic += value;
                     }
                 }
@@ -523,6 +533,11 @@ public class StateCopy {
                 }
                 heuristic -= (20 - points) * factor;
                 heuristic -= copyField.get(i).size() * 3;
+
+                if (copyField.get(i).size() >= 8) {
+                    // bonus points
+                    heuristic -= 20;
+                }
             }
         }
 
@@ -540,6 +555,21 @@ public class StateCopy {
             heuristic -= 10;
         } else if (amountExpeditions == 5) {
             heuristic -= 20;
+        }
+
+        if (enemyExpeditions == 0) {
+            if (copyField.size() <= 35) {
+                heuristic += 10;
+            }
+            if (copyField.size() <= 25) {
+                heuristic += 20;
+            }
+        } else if (enemyExpeditions == 1 && copyField.size() <= 25) {
+            heuristic += 10;
+        } else if (enemyExpeditions == 4) {
+            heuristic += 10;
+        } else if (enemyExpeditions == 5) {
+            heuristic += 20;
         }
 
         return heuristic;

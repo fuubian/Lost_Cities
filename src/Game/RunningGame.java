@@ -17,7 +17,7 @@ public class RunningGame {
     static Game game;
     static final boolean textActive = false;
     static final boolean analysisActive = true;
-    static final int AMOUNT_GAMES = 5;
+    static final int AMOUNT_GAMES = 10000;
 
     /**
      * Static values that are used by the Information Set AIs.
@@ -25,7 +25,7 @@ public class RunningGame {
      * different max_n values.
      */
     public static final double C_VALUE1 = 0.7;
-    public static final double C_VALUE2 = 0.5;
+    public static final double C_VALUE2 = 0.7;
     public static final int MAX_N1 = 7;
     public static final int MAX_N2 = 7;
 
@@ -34,8 +34,8 @@ public class RunningGame {
         int[][] allPoints = new int[AMOUNT_GAMES][2];
         for (int i = 0; i < AMOUNT_GAMES; i++) {
             game = new Game();
-            AI1 = new InformationSetAILight(1);
-            AI2 = new InformationSetAILight(2);
+            AI1 = new RandomAI(1);
+            AI2 = new RandomAI(2);
 
             while (game.getState() != 4) {
                 if (textActive) {
@@ -88,8 +88,11 @@ public class RunningGame {
 
         if (analysisActive) {
             int won = 0;
+            int draws = 0;
             int highest = allPoints[0][0];
             int lowest = allPoints[0][0];
+            int oppHighest = allPoints[0][1];
+            int oppLowest = allPoints[0][1];
             long ownPoints = 0;
             long opponentPoints = 0;
 
@@ -110,19 +113,31 @@ public class RunningGame {
                 if (allPoints[i][0] < lowest) {
                     lowest = allPoints[i][0];
                 }
+                if (allPoints[i][1] > oppHighest) {
+                    oppHighest = allPoints[i][1];
+                }
+                if (allPoints[i][1] < oppLowest) {
+                    oppLowest = allPoints[i][1];
+                }
 
                 ownPoints += allPoints[i][0];
                 opponentPoints += allPoints[i][1];
                 if (allPoints[i][0] > allPoints[i][1]) {
                     won++;
+                } else if (allPoints[i][0] == allPoints[i][1]) {
+                    draws++;
                 }
             }
 
             System.out.println("\nGames Won: " + won + "/" + AMOUNT_GAMES);
+            System.out.println("Games Drawn: " + draws + "/" + AMOUNT_GAMES);
+            System.out.println("Games Lost: " + (AMOUNT_GAMES-won-draws) + "/" + AMOUNT_GAMES);
             System.out.println("Average Points: " + (ownPoints / (double) AMOUNT_GAMES));
             System.out.println("Average Opponent Points: " + (opponentPoints / (double) AMOUNT_GAMES));
             System.out.println("Highest Points: " + highest);
             System.out.println("Lowest Points: " + lowest);
+            System.out.println("Opponent Highest Points: " + oppHighest);
+            System.out.println("Opponent Lowest Points: " + oppLowest);
         }
 
         System.out.println("Time needed: " + (System.currentTimeMillis()-time));
