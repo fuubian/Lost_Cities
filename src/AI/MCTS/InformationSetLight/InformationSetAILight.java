@@ -32,13 +32,6 @@ public class InformationSetAILight extends ArtificialIntelligence {
      * Plays a card onto the discard pile or expedition pile.
      */
     public PlayMove playCard(GameState state) {
-        /*if (this.player == 1) {
-            System.out.print("Opponent Cards: ");
-            for (Card card : knownOpponentCards) {
-                System.out.print(card + " ");
-            }
-            System.out.println();
-        }*/
         this.move = this.createTree(state);
 
         return this.move.getPlayMove();
