@@ -17,7 +17,7 @@ public class RunningGame {
     static Game game;
     static final boolean textActive = false;
     static final boolean analysisActive = true;
-    static final int AMOUNT_GAMES = 10000;
+    static final int AMOUNT_GAMES = 31;
 
     /**
      * Static values that are used by the Information Set AIs.
@@ -26,18 +26,27 @@ public class RunningGame {
      */
     public static final double C_VALUE1 = 0.7;
     public static final double C_VALUE2 = 0.7;
-    public static final int MAX_N1 = 7;
-    public static final int MAX_N2 = 7;
+    public static final int MAX_N1 = 8;
+    public static final int MAX_N2 = 8;
 
     public static void main(String[] args) {
         long time = System.currentTimeMillis();
         int[][] allPoints = new int[AMOUNT_GAMES][2];
+        Main:
         for (int i = 0; i < AMOUNT_GAMES; i++) {
             game = new Game();
-            AI1 = new RandomAI(1);
-            AI2 = new RandomAI(2);
+            AI1 = new InformationSetAIHard2(1);
+            AI2 = new InformationSetAIHard(2);
 
+            int counter = 0;
             while (game.getState() != 4) {
+                counter++;
+                if (counter == 150) {
+                    System.out.println("Game cancelled because too many moves.");
+                    i--;
+                    continue Main;
+                }
+
                 if (textActive) {
                     System.out.println("Player 1's state:");
                     printField(game.getGameState(1));
