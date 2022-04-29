@@ -395,6 +395,10 @@ public class Gui extends JFrame {
     if (pile == 0) {
       this.game.executeMove(new TakeMove(1, 5));
     } else {
+      if (this.game.getGameState(1).getDiscardedCards().get(pile-1).size() == 0) {
+        JOptionPane.showMessageDialog(new JFrame(), "Illegal move.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+      }
       Card card = this.game.getGameState(1).getDiscardedCards().get(pile - 1).get(
               this.game.getGameState(1).getDiscardedCards().get(pile - 1).size() - 1);
       if (!this.game.executeMove(new TakeMove(1, pile - 1))) {
