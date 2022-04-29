@@ -52,7 +52,7 @@ public class RunningGame {
       game = new Game();
 
       // Selection of both AIs.
-      AI1 = new InformationSetAIHard2(1, 10000);
+      AI1 = new InformationSetAIHard(1, 10000);
       AI2 = new InformationSetAILight(2, 10000);
 
       while (game.getState() != 4) {
